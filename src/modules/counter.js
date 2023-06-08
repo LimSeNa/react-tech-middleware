@@ -1,23 +1,32 @@
 import {createAction, handleActions} from "redux-actions";
+import {delay, put, select, throttle} from "redux-saga/effects";
 
 const INCREASE = 'counter/INCREASE';
 const DECREASE = 'counter/DECREASE';
+const INCREASE_ASYNC = 'counter/INCREASE_ASYNC';
+const DECREASE_ASYNC = 'counter/DECREASE_ASYNC';
 
 export const increase = createAction(INCREASE);
 export const decrease = createAction(DECREASE);
+export const increaseAsync = createAction(INCREASE_ASYNC, () => undefined);
+export const decreaseAsync = createAction(DECREASE_ASYNC, () => undefined);
 
-// 1초 뒤에 increase 혹은 decrease 함수를 디스패치
-export const increaseAsync = () => dispatch => {
-    setTimeout(() => {
-        dispatch(increase());
-    }, 1000);
-};
+function* increaseSaga() {
+    yield delay(1000); // 1초 기다림
+    yield put(increase()); // 특정 액션을 디스패치
+}
 
-export const decreaseAsync = () => dispatch => {
-    setTimeout(() => {
-        dispatch(decrease());
-    }, 1000);
-};
+function* decreaseSaga() {
+    yield delay(1000);
+    yield put(decrease());
+}
+
+export function* counterSaga() {
+    yield throttle(3000, INCREASE_ASYNC, increaseSaga);
+    yield throttle(3000, DECREASE_ASYNC, decreaseSaga);
+    const number = yield select(state => state.counter); // state는 스토어 상태를 의미함
+    console.log(`현재 값은 ${number}입니다.`);
+}
 
 const initialState = 0;
 

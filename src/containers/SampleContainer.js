@@ -1,7 +1,7 @@
-import React from "react";
-import Sample from "../components/Sample";
-import {connect} from "react-redux";
-import {getPost, getUsers} from "../lib/api";
+import React from 'react';
+import { connect } from 'react-redux';
+import Sample from '../components/Sample';
+import { getPost, getUsers } from '../modules/sample';
 
 const { useEffect } = React;
 const SampleContainer = ({
@@ -13,16 +13,23 @@ const SampleContainer = ({
                              loadingUsers
                          }) => {
     useEffect(() => {
-        getPost(1);
-        getUsers(1);
+        const fn = async () => {
+            try {
+                await getPost(1);
+                await getUsers(1);
+            } catch (e) {
+                console.log(e); // 에러 조회
+            }
+        };
+        fn();
     }, [getPost, getUsers]);
-
     return (
         <Sample
             post={post}
             users={users}
             loadingPost={loadingPost}
-            loadingUsers={loadingUsers}/>
+            loadingUsers={loadingUsers}
+        />
     );
 };
 
@@ -31,7 +38,7 @@ export default connect(
         post: sample.post,
         users: sample.users,
         loadingPost: loading['sample/GET_POST'],
-        loadingUsers: loading['sample/GET_POST']
+        loadingUsers: loading['sample/GET_USERS']
     }),
     {
         getPost,
